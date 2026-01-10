@@ -1,0 +1,29 @@
+.app-layout{
+  display:grid;
+  width: 100vw;
+  height:100vh;
+  grid-template-columns: 70% 30%;
+  grid-template-rows: 1fr auto;
+}
+
+.left-panel{
+  grid-column: 1;
+  grid-row: 1;
+  border-right: 2px solid black;
+  overflow-y: auto;
+  
+}
+
+.right-panel{
+  grid-column: 2;
+  grid-row:1;
+  overflow-y: auto;
+}
+
+.footer{
+  grid-column: 1 / span 2;
+  height: 13vh;
+  grid-row:2;
+  border-top: 2px solid black;
+  padding: 10px;
+}
