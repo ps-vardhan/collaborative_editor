@@ -1,11 +1,22 @@
 import React, { useEffect, useRef } from "react";
 import "../styles/Canvas.css";
+import { brushHandlers } from "./brushes";
 
 const Canvas = React.forwardRef(
-  ({ width = 800, height = 600 }, forwardedRef) => {
+  (
+    {
+      width = 800,
+      height = 600,
+      color,
+      brushSize,
+      brushType = "default",
+    },
+    forwardedRef
+  ) => {
     const canvasRef = useRef(null);
     const isDrawingRef = useRef(false);
     const lastPositionRef = useRef({ x: 0, y: 0 });
+    const lastTimeRef = useRef(0);
 
     useEffect(() => {
       if (forwardedRef) {
@@ -49,12 +60,24 @@ const Canvas = React.forwardRef(
         y: e.nativeEvent.offsetY,
       };
 
-      context.beginPath();
-      context.moveTo(lastPositionRef.current.x, lastPositionRef.current.y);
-      context.lineTo(currentPosition.x, currentPosition.y);
-      context.stroke();
+      const brushHandler = brushHandlers[brushType] || brushHandlers.default;
+
+      brushHandler(context, {
+        start: lastPositionRef.current,
+        end: currentPosition,
+        color,
+        size: brushSize,
+        lastTime: lastTimeRef.current,
+      });
 
       lastPositionRef.current = currentPosition;
+      lastTimeRef.current = Date.now();
+      //   context.beginPath();
+      //   context.moveTo(lastPositionRef.current.x, lastPositionRef.current.y);
+      //   context.lineTo(currentPosition.x, currentPosition.y);
+      //   context.stroke();
+
+      //   lastPositionRef.current = currentPosition;
     };
 
     const handleMouseUp = () => {
