@@ -1,14 +1,54 @@
 import { Box, Flex } from "@chakra-ui/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import "./App.css";
 import Canvas from "./components/Canvas";
 import CodeEditor from "./components/CodeEditor";
+import ToolBar from "./components/ToolBar";
 
 function App() {
   const [color, setColor] = useState("#000000");
   const [brushSize, setBrushSize] = useState(10);
   const [brushType, setBrushType] = useState("default");
+  const [history, setHistory] = useState([]);
+  const [historyStep, setHistoryStep] = useState(-1);
+  const canvasRef = useRef(null);
+  const [isEraser, setIsEraser] = useState(false);
 
+  const handleSaveState = (dataUrl) => {
+    const newHistory = history.slice(0, historyStep + 1);
+    newHistory.push(dataUrl);
+    setHistory(newHistory);
+    setHistoryStep(newHistory.length - 1);
+  };
+
+  const toggleEraser = () => {
+    setIsEraser((prev) => !prev);
+    if (!isEraser) setBrushType("default");
+  };
+
+  const handleUndo = () => {
+    if (historyStep > 0) setHistoryStep((prev) => prev - 1);
+  };
+
+  const handleRedo = () => {
+    if (historyStep < history.length - 1) setHistoryStep((prev) => prev + 1);
+  };
+
+  const handleClear = () => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const context = canvas.getContext("2d");
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      handleSaveState();
+    }
+  };
+
+  const handleSave = () => {
+    const link = document.createElement("a");
+    link.download = "drawing.png";
+    link.href = canvasRef.current.toDataUrl();
+    link.click();
+  };
   return (
     <div className="app-layout">
       <section className="left-panel">
@@ -27,13 +67,17 @@ function App() {
       </section>
       <section className="right-panel">
         <Canvas
+          ref={canvasRef}
           width={800}
           height={600}
-          color={color}
+          // color={color}
           brushSize={brushSize}
           brushType={brushType}
+          onSaveState={handleSaveState}
+          historyImage={history[historyStep]}
+          color={isEraser ? "#ffffff" : color}
         />
-        <div
+        {/* <div
           style={{
             position: "absolute",
             top: 10,
@@ -54,7 +98,10 @@ function App() {
             value={brushSize}
             onChange={(e) => setBrushSize(Number(e.target.value))}
           />
-          <select value={brushType} onChange={(e) => setBrushType(e.target.value)}>
+          <select
+            value={brushType}
+            onChange={(e) => setBrushType(e.target.value)}
+          >
             <option value="default">Default</option>
             <option value="calligraphy">Calligraphy</option>
             <option value="splatter">Splatter</option>
@@ -68,7 +115,24 @@ function App() {
             <option value="glitch">Glitch</option>
             <option value="scribble">Scribble</option>
           </select>
-        </div>
+        </div> */}
+
+        <ToolBar
+          color={color}
+          setColor={setColor}
+          brushSize={brushSize}
+          setBrushSize={setBrushSize}
+          brushType={brushType}
+          setBrushType={setBrushType}
+          handleUndo={handleUndo}
+          canUndo={historyStep > 0}
+          handleRedo={handleRedo}
+          canRedo={historyStep < history.length - 1}
+          handleClear={handleClear}
+          handleSave={handleSave}
+          isEraser={isEraser}
+          toggleEraser={toggleEraser}
+        />
       </section>
       {/* <section className='file-structure'> file system</section> */}
       <footer className="footer">User: Guest are here</footer>
