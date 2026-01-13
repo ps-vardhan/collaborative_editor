@@ -5,11 +5,13 @@ import { brushHandlers } from "./brushes";
 const Canvas = React.forwardRef(
   (
     {
-      width = 800,
-      height = 600,
+      width,
+      height,
       color,
       brushSize,
       brushType = "default",
+      onSaveState,
+      historyImage,
     },
     forwardedRef
   ) => {
@@ -40,6 +42,34 @@ const Canvas = React.forwardRef(
       context.lineWidth = 5;
     }, [width, height]);
 
+    useEffect(() => {
+      if (historyImage) {
+        const context = canvasRef.current.getContext("2d");
+        const img = new Image();
+        img.src = historyImage;
+        img.onload = () => {
+          context.clearRect(0, 0, width, height);
+          context.drawImage(img, 0, 0);
+        };
+      }
+    }, [historyImage, width, height]);
+
+    const drawShape = (context, start, end, type, color) => {
+      context.beginPath();
+      context.strokeStyle = color;
+      context.fillStyle = color;
+      const width = end.x - end.x;
+      const height = (end.y = end.y);
+
+      if (type === "rectangle") {
+        context.strokeRect(start.x, start.y, width, height);
+      } else if (type === "circle") {
+        const radius = Math.sqrt(width * width + height * height);
+        context.arc(start.x, start.y, radius, 0, 2 * Math.PI);
+        context.stroke();
+      }
+    };
+
     const handleMouseDown = (e) => {
       const currentPosition = {
         x: e.nativeEvent.offsetX,
@@ -60,28 +90,48 @@ const Canvas = React.forwardRef(
         y: e.nativeEvent.offsetY,
       };
 
-      const brushHandler = brushHandlers[brushType] || brushHandlers.default;
+      if (brushType === "rectangle" || brushType === "circle") {
+        context.clearRect(0, 0, width, height);
 
-      brushHandler(context, {
-        start: lastPositionRef.current,
-        end: currentPosition,
-        color,
-        size: brushSize,
-        lastTime: lastTimeRef.current,
-      });
+        if (historyImage) {
+          const img = new Image();
+          img.src = historyImage;
+          context.drawImage(img, 0, 0);
+        }
+        drawShape(
+          context,
+          lastPositionRef.current,
+          currentPosition,
+          brushType,
+          color
+        );
+      } else {
+        const brushHandler = brushHandlers[brushType] || brushHandlers.default;
 
-      lastPositionRef.current = currentPosition;
-      lastTimeRef.current = Date.now();
-      //   context.beginPath();
-      //   context.moveTo(lastPositionRef.current.x, lastPositionRef.current.y);
-      //   context.lineTo(currentPosition.x, currentPosition.y);
-      //   context.stroke();
+        brushHandler(context, {
+          start: lastPositionRef.current,
+          end: currentPosition,
+          color,
+          size: brushSize,
+          lastTime: lastTimeRef.current,
+        });
 
-      //   lastPositionRef.current = currentPosition;
+        lastPositionRef.current = currentPosition;
+        lastTimeRef.current = Date.now();
+        //   context.beginPath();
+        //   context.moveTo(lastPositionRef.current.x, lastPositionRef.current.y);
+        //   context.lineTo(currentPosition.x, currentPosition.y);
+        //   context.stroke();
+
+        //   lastPositionRef.current = currentPosition;
+      }
     };
 
     const handleMouseUp = () => {
       isDrawingRef.current = false;
+      if (onSaveState) {
+        onSaveState(canvasRef.current.toDataURL());
+      }
     };
 
     return (
