@@ -19,6 +19,14 @@ A record of issues encountered during development and how they were fixed.
 | **Editor Logic** | `CodeEditor.jsx` | `onSelect` function unused | Moved `LanguageSelector` **inside** `CodeEditor` (or lifted state up) to connect the components. |
 | **Python Indent** | `constants.js` | No auto-indentation for Python | Changed Language ID from `"Python"` (Capital) to `"python"` (lowercase) to match Monaco's ID. |
 | **Duplicate UI** | `App.jsx` | Two language selectors visible | Removed the duplicate `<LanguageSelector />` from `App.jsx`. |
+| **Wrong Structure** | `App.jsx` | Toolbar mixed in App (vs SeyPaint structure) | Extracted inline toolbar to new `src/components/Toolbar.jsx` to match "95% structure" requirement. |
+| **Missing Import** | `App.jsx` | `ToolBar` is not defined | Added `import ToolBar from "./components/ToolBar";`. |
+| **Logic Error** | `App.jsx` | `setHistoryStep(newHistory)` (Array vs Number) | Fixed to `setHistory(newHistory)` and `setHistoryStep(index)`. |
+| **Ref Access** | `App.jsx` | `Canvas.current.toDataUrl` | Fixed to `canvasRef.current.toDataURL()` (case-sensitive & ref usage). |
+| **Missing Props** | `ToolBar.jsx` | `isEraser` undefined | Added `isEraser, toggleEraser` to component props destructuring. |
+| **Math Error** | `Canvas.jsx` | Shape width/height calculation wrong | Fixed `end.x - end.y` to `end.x - start.x`. |
+| **Var Naming** | `Canvas.jsx` | `ctx` is not defined | Renamed copied `ctx` variables to `context` to match local variable. |
+| **Layout Size** | `App.css` | Paint area was 30% (Request: 25%) | Updated grid columns to `75% 25%` (Planned). |
 
 ## Getting Started
 
