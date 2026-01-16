@@ -7,26 +7,32 @@ import {
   MenuList,
   Text,
 } from "@chakra-ui/react";
-import { LANGUAGES_Versions } from "../constants";
+import { Language_Versions } from "../constants";
 
-// Convert object to array of [key, value] pairs
-const languages = Object.entries(LANGUAGES_Versions);
+const languages = Object.entries(Language_Versions);
 
-const LanguageSelector = ({language,onSelect}) => {
+const LanguageSelector = ({ language, onSelect }) => {
   return (
-    <Box >
-      <Text mb={2} fontSize={"large"}>
-        Language:
-      </Text>
-      <Menu>
+    <Box ml={2} mb={3} mt={3}>
+      {/* <Text mb={2} fontSize="lg">
+        Select Language
+      </Text> */}
+      <Menu isLazy>
         <MenuButton as={Button}>{language}</MenuButton>
 
-        <MenuList >
-          {languages.map(([language, version]) => (
-            <MenuItem key={language} onClick={() => {
-                onSelect(language);
-              }}>
-              {language}
+        <MenuList bg="#110c1b">
+          {languages.map(([lang, version]) => (
+            <MenuItem
+              key={lang}
+              color={lang === language ? "blue.400" : "white"}
+              bg={lang === language ? "gray.900" : "transparent"}
+              _hover={{
+                bg: "gray.900",
+                color: "blue.400",
+              }}
+              onClick={() => onSelect(lang)}
+            >
+              {lang}
               &nbsp;
               <Text as="span" color="gray.600" fontSize="sm">
                 ({version})
