@@ -99,7 +99,7 @@ function App() {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // 2. Draw Watermark (Re-using logic here is tricky without export, so we duplicate or assume it's set. 
+    // 2. Draw Watermark (Re-using logic here is tricky without export, so we duplicate or assume it's set.
     //    Actually, we can just grab the computed background from the canvas element style if we want?
     //    Or simpler: just re-implement the simple watermark loop here for the save file.)
 
@@ -112,7 +112,9 @@ function App() {
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate(-Math.PI / 4);
     ctx.translate(-canvas.width / 2, -canvas.height / 2);
-    const diagonal = Math.sqrt(canvas.width * canvas.width + canvas.height * canvas.height);
+    const diagonal = Math.sqrt(
+      canvas.width * canvas.width + canvas.height * canvas.height
+    );
     for (let x = -diagonal; x < canvas.width + diagonal; x += 150) {
       for (let y = -diagonal; y < canvas.height + diagonal; y += 100) {
         ctx.fillText("PAINT", x, y);
@@ -160,8 +162,9 @@ function App() {
           height="100%"
           bg="#0f0a19"
           color="gray.500"
-          px={6}
-          py={8}
+          // p={0}
+          px={3}
+          py={4}
         >
           <Box flex="1" overflow="hidden">
             <CodeEditor />
