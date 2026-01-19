@@ -13,7 +13,8 @@ const Canvas = React.forwardRef(
       width,
       height,
       zoom = 1,
-      isEraser, // <--- Added prop
+      isEraser,
+      doc,
     },
     forwardedRef
   ) => {
@@ -22,16 +23,22 @@ const Canvas = React.forwardRef(
     const lastPositionRef = useRef({ x: 0, y: 0 });
     const lastTimeRef = useRef(0);
 
+    const yPaintRef = useRef(null);
+
+    useEffect(() => {
+      if (doc) {
+        yPaintRef.current = doc.getArray("paint-ops");
+      }
+    }, [doc]);
+
     useEffect(() => {
       if (forwardedRef) {
         forwardedRef.current = canvasRef.current;
       }
     }, [forwardedRef]);
 
-
     const drawWatermark = (ctx) => {
       ctx.save();
-      // Setup Text
       ctx.font = "bold 30px Arial";
       ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
       ctx.textAlign = "center";
@@ -109,12 +116,91 @@ const Canvas = React.forwardRef(
       }
     }, [historyImage, width, height]);
 
+    useEffect(() => {
+      if (!yPaintRef.current || !canvasRef.current) return;
+
+      const yArray = yPaintRef.current;
+      const canvas = canvasRef.current;
+      const context = canvas.getContext("2d");
+
+      console.log("Canvas: Observing Yjs array");
+      const observer = (event) => {
+        console.log("Canvas: Yjs event received", event);
+        event.changes.added.forEach((item) => {
+          console.log("Canvas: Remote update received");
+          if (event.transaction.local) return;
+
+          item.content.getContent().forEach((op) => {
+            console.log("Canvas: Drawing remote op", op);
+            performDraw(context, op);
+          });
+        });
+        if (event.changes.deleted.size > 0 && yArray.length === 0) {
+          if (!event.transaction.local) {
+            console.log("Canvas: Remote clear received");
+            context.clearRect(0, 0, width, height);
+          }
+        }
+      };
+
+      console.log("Canvas: Attaching observer to Yjs array, current length:", yArray.length);
+      // Draw existing content on load
+      if (yArray.length > 0) {
+        console.log("Canvas: Loading existing strokes...", yArray.length);
+        yArray.forEach(op => {
+          // Handle array of ops if it's pushed as an array, or single op
+          // The push was: yPaintRef.current.push([op]); -> So Y.Array contains items.
+          // Wait, yArray.push([content]) pushes content types.
+          // If we pushed a JSON object, it's a Y.Map or just JSON?
+          // Yjs push accepts content.
+          // Let's inspect the item.
+          performDraw(context, op);
+        })
+      }
+
+
+      // // Draw existing content on load
+      // if (yArray.length > 0) {
+      //   console.log("Canvas: Loading existing strokes...", yArray.length);
+      //   yArray.forEach(op => {
+      //     performDraw(context, op);
+      //   });
+      // }
+
+      yArray.observe(observer);
+      return () => {
+        console.log("Canvas: Unobserving Yjs array");
+        yArray.unobserve(observer);
+      };
+    }, [width, height, doc]);
+
+    const performDraw = (context, op) => {
+      const { type, start, end, color: opColor, size, isEraser: opIsErazer, brushType: opBrushType } = op;
+
+      context.save();
+
+      if (opIsErazer) {
+        context.globalCompositeOperation = "destination-out";
+      } else {
+        context.globalCompositeOperation = "source-over";
+      }
+
+      if (opBrushType === "rectangle" || opBrushType === "circle") {
+        drawShape(context, start, end, opBrushType, opColor);
+      } else {
+        const brushHandler = brushHandlers[opBrushType] || brushHandlers.default;
+        brushHandler(context, { start: start, end: end, color: opColor, size: size, lastTime: 0 });
+      }
+      context.restore();
+    };
+
+
     const drawShape = (context, start, end, type, color) => {
       context.beginPath();
       context.strokeStyle = color;
       context.fillStyle = color;
-      const width = end.x - end.x;
-      const height = end.y - end.y;
+      const width = end.x - start.x;
+      const height = end.y - start.y;
 
       if (type === "rectangle") {
         context.strokeRect(start.x, start.y, width, height);
@@ -193,6 +279,19 @@ const Canvas = React.forwardRef(
           lastTime: lastTimeRef.current,
         });
 
+        if (yPaintRef.current) {
+          const op = {
+            type: 'draw',
+            start: lastPositionRef.current,
+            end: currentPosition,
+            color: color,
+            size: brushSize,
+            isEraser: isEraser,
+            brushType: brushType,
+          };
+          console.log("Canvas: Pushing local op", op);
+          yPaintRef.current.push([op]);
+        }
         lastPositionRef.current = currentPosition;
         lastTimeRef.current = Date.now();
 
@@ -201,7 +300,27 @@ const Canvas = React.forwardRef(
       }
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (e) => {
+      if (isDrawingRef.current && (brushType === "rectangle" || brushType === "circle")) {
+        const currentPosition = {
+          x: e.nativeEvent.offsetX / zoom,
+          y: e.nativeEvent.offsetY / zoom,
+        };
+        if (yPaintRef.current) {
+          const op = {
+            type: 'shape',
+            start: lastPositionRef.current,
+            end: currentPosition,
+            color: color,
+            isEraser: isEraser,
+            brushType: brushType,
+            size: brushSize
+          };
+          yPaintRef.current.push([op]);
+        }
+      }
+
+
       isDrawingRef.current = false;
       if (onSaveState) {
         onSaveState(canvasRef.current.toDataURL());
