@@ -39,3 +39,30 @@ coverage/
 # Misc
 tmp/
 temp/
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs (server)
+server/logs
+server/*.log
+
+# Secrets
+*.pem
+*.key
+*.cert
+*.secret
+
+# Tooling
+.eslintcache
+
+
+# Backups
+*.bak
+*~
+*.swp
+
+# Scratchpad
+plan.md
