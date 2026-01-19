@@ -13,7 +13,7 @@ const languages = Object.entries(Language_Versions);
 
 const LanguageSelector = ({ language, onSelect }) => {
   return (
-    <Box ml={2} mb={3} mt={3}>
+    <Box >
       {/* <Text mb={2} fontSize="lg">
         Select Language
       </Text> */}
