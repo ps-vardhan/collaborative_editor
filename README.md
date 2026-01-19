@@ -35,6 +35,26 @@ A record of issues encountered during development and how they were fixed.
 | **Syntax Error** | `Canvas.jsx` | `Function components cannot be given refs` | **Fix**: Added missing `(` in `React.forwardRef` props destructuring. |
 | **Syntax Error** | `Canvas.jsx` | `Unexpected token else` | **Fix**: Removed stray `} else {` block left over from replace operation. |
 | **Runtime Error** | `Canvas.jsx` | `currentPosition is not defined` | **Fix**: Restored the `currentPosition` variable definition in `handleMouseMove`. |
+| **Crash (Runtime)** | `CodeEditor.jsx` | `Uncaught TypeError` (Button not defined) | **Fix**: Added missing `Button` to imports from `@chakra-ui/react`. |
+| **Logic Error** | `CodeEditor.jsx` | `e` is not defined (preventing default) | **Fix**: Added `e` as argument to `runCode` function signature. |
+| **Crash (Chakra)** | `CodeEditor.jsx` | `Cannot read properties of undefined` (Toast) | **Fix**: Corrected `status: "succ"` to `status: "success"`. |
+| **UI Rendering** | `App.jsx` | Output Panel covering Editor | **Fix**: Corrected resize math from `- 0.5` to `* 0.5` (50% limit). |
+| **Layout Issue** | `App.jsx` | Editor not using full width | **Fix**: Removed `px={6} py={8}` padding from the `Flex` container in Left Panel. |
+| **UX Issue** | `CodeEditor.jsx` | Run button reloads page | **Fix**: Added `type="button"` and `e.preventDefault()`. |
+| **Logic Mismatch** | `Output.jsx` | Button located in Output panel but controls Editor | **Refactor**: Lifted `runCode` state & logic up to `CodeEditor.jsx`. |
+| **Space Efficiency** | `CodeEditor.jsx` | Editor not taking full height of panel | **Fix**: Applied `flex="1"` and `height="100%"` to editor container in Flex column. |
+| **Typo Error** | `LoginPage.jsx` | `handleJoin` is not defined | **Fix**: Renamed `handleJoion` to `handleJoin`. |
+| **Method Error** | `server/routes/rooms.js` | `GET` request having body content | **Fix**: Changed `router.get("/join")` to `router.post("/join")`. |
+| **Logic Error** | `LoginPage.jsx` | Password input missing | **Fix**: Added Password Input fields for specific flows. |
+| **Ref Error** | `server/routes/rooms.js` | `generateId` is not defined | **Fix**: Added `generateId` helper function using `crypto`. |
+| **Arg Error** | `server/routes/rooms.js` | `generateRoomId(6)` called with argument | **Fix**: Removed argument to match definition (which is hardcoded to 6 bytes). |
+| **UX Polish** | `LoginPage.jsx` | Layout not centered | **Fix**: Added `100vw/100vh` flex container with gradient background. |
+| **Secure Auth** | `LoginPage.jsx` | User could create custom passwords | **Improvement**: Switched to Server-Generated Access Keys for security. |
+| **Snippet Loading** | `CodeEditor.jsx` | "Hello World" code not appearing on load | Added `onMount` check: if "Select Lang", force placeholder text. |
+| **Ref Access** | `CodeEditor.jsx` | Parent unable to trigger `runCode` | Wrapped editor in `forwardRef` and exposed method via `useImperativeHandle`. |
+| **Syntax Error** | `CodeEditor.jsx` | `Adjacent JSX elements` / `Unexpected token` | Fixed component nesting (moved `</Box>` tags) and removed extra closing tags. |
+| **Runtime Crash** | `EditorPage.jsx` | `Failed to construct 'Text'` | Added missing `Text` import to `@chakra-ui/react` destructured list. |
+| **Missing Feature** | `EditorPage.jsx` | Password not visible in session info | Implemented `localStorage` retrieval for `passwordKey` and added Info Popover. |
 
 ## 📚 Documentation & Guides
 
