@@ -1,5 +1,17 @@
 # Collaborative Code Editor
 
+**Real-Time Collaboration Platform**
+
+A powerful, shared workspace integrating **Code Editing** (Monaco), **Whiteboarding** (Canvas), and **Voice Conferencing** (LiveKit) into a single synchronous experience.
+
+### 🚀 Key Features
+-   **Live Audio Rooms**: Drop-in voice chat with spatial awareness (powered by LiveKit).
+-   **Collaborative Code Editor**: Multi-user syntax highlighting and editing with cursor tracking.
+-   **Shared Whiteboard**: Infinite canvas with shape tools, freehand drawing, and persistent layers.
+-   **Session Management**: Secure room creation with persistent history and state.
+
+---
+
 A React-based Code Editor built with **Vite**, **Chakra UI**, and **Monaco Editor**.
 
 ## 🐛 Development Log: Errors & Resolutions

@@ -2,6 +2,13 @@
 logs
 *.log
 npm-debug.log*
+
+# LiveKit & Media
+recordings/
+*.webm
+*.mp4
+*.wav
+*.mp3
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
