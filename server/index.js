@@ -1,3 +1,5 @@
+const { createToken } = require('./livekit-token.js');
+
 const express = require("express");
 const mongoose = require("mongoose");
 const http = require("http");
@@ -51,8 +53,16 @@ mongoose
 //   },
 // });
 
-app.get("/", (req, res) => {
-  res.send("Collaborative Text Editor Server is Running");
+app.get("/api/token", async (req, res) => {
+  // res.send("Collaborative Text Editor Server is Running");
+  const room = req.query.room;
+  const userName = req.query.username || "Guest";
+  try {
+    const token = await createToken(room, userName);
+    res.json({ token });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 const wss = new WebSocket.Server({ server });
