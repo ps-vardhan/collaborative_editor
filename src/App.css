@@ -26,10 +26,17 @@
 
 .footer {
   grid-column: 1 / span 3;
-  height: 13vh;
+  height: 80px;
   grid-row: 2;
-  border-top: 2px solid black;
-  padding: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0 24px;
+  background-color: #0f0a19;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 50;
 }
 
 .resize-handle:hover {
